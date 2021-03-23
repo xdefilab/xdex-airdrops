@@ -60,7 +60,6 @@ async function publishPlanToIpfs(pinata, path, name) {
 async function main() {
     console.log('Start with', { dryrun });
 
-    const pinata = await initPinata();
     const airdrop = await MerkleAirdrop.deployed();
     //const pha = await PHAToken.deployed();
     const [account] = await web3.eth.getAccounts();
@@ -72,7 +71,6 @@ async function main() {
 
     // suppose to be: address,amount,xxx,yyy...
     let airdropData = loadcsv(csvFile);
-
     // check csv columns
     airdropData = airdropData
         .map(r => { return { ...r, amount: parseFloat(r.amount) } })
@@ -87,6 +85,7 @@ async function main() {
     const merklized = merklize(airdropData, 'address', 'amount');
     const plan = toMaterializable(merklized);
     plan.id = curDrops.toNumber() + 1;
+    console.log("Got plan.id:" + plan.id.toString());
 
     // materilize airdrop plan
     const planJson = JSON.stringify(plan);
@@ -95,6 +94,8 @@ async function main() {
     // publish the plan to IPFS
     console.log('Publishing to IPFS...');
     const contractAddrPrefix = airdrop.address.substring(2, 8);
+
+    const pinata = await initPinata();
     const hash = await publishPlanToIpfs(pinata, outJson, `merkle-airdrop-${contractAddrPrefix}-${plan.id}`);
 
     // save manifest

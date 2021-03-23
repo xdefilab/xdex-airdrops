@@ -16,7 +16,6 @@ contract MerkleAirdrop {
     event Start(uint256 id);
     event PauseChange(uint256 id, bool paused);
     event Award(uint256 id, address recipient, uint256 amount);
-    event BalAmount(uint256 bal, uint256 amount);
 
     // States
     mapping(uint256 => Airdrop) public airdrops;
@@ -107,7 +106,7 @@ contract MerkleAirdrop {
         if (bal >= _amount) {
             token.transfer(_recipient, _amount);
         } else {
-            emit BalAmount(bal, _amount);
+            revert("INVALID_CONTRACT_BALANCE");
         }
 
         emit Award(_id, _recipient, _amount);
@@ -157,7 +156,7 @@ contract MerkleAirdrop {
         if (bal >= totalAmount) {
             token.transfer(_recipient, totalAmount);
         } else {
-            emit BalAmount(bal, totalAmount);
+            revert("INVALID_CONTRACT_BALANCE");
         }
     }
 
