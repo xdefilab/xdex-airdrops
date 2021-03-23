@@ -2,6 +2,12 @@
     "contractName": "MerkleAirdrop",
     "abi": [
         {
+            "inputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
             "anonymous": false,
             "inputs": [
                 {
@@ -30,19 +36,19 @@
             "anonymous": false,
             "inputs": [
                 {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "previousOwner",
-                    "type": "address"
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "bal",
+                    "type": "uint256"
                 },
                 {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "newOwner",
-                    "type": "address"
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
                 }
             ],
-            "name": "OwnershipTransferred",
+            "name": "BalAmount",
             "type": "event"
         },
         {
@@ -126,7 +132,7 @@
         {
             "constant": true,
             "inputs": [],
-            "name": "approver",
+            "name": "core",
             "outputs": [
                 {
                     "internalType": "address",
@@ -136,45 +142,6 @@
             ],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "isOwner",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "owner",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "renounceOwnership",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
             "type": "function"
         },
         {
@@ -197,27 +164,7 @@
             "inputs": [
                 {
                     "internalType": "address",
-                    "name": "newOwner",
-                    "type": "address"
-                }
-            ],
-            "name": "transferOwnership",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "internalType": "address",
                     "name": "_token",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_approver",
                     "type": "address"
                 }
             ],
@@ -262,6 +209,15 @@
                 }
             ],
             "name": "setPause",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "removeToken",
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",

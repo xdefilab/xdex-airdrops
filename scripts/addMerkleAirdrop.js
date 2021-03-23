@@ -11,7 +11,7 @@ const pinataSDK = require('@pinata/sdk');
 const { merklize, toMaterializable } = require('@phala/merkledrop-lib');
 
 const MerkleAirdrop = artifacts.require('MerkleAirdrop');
-const PHAToken = artifacts.require('PHAToken');
+//const PHAToken = artifacts.require('PHAToken');
 
 const dryrun = parseInt(process.env.DRYRUN || '1');
 const workdir = process.env.WORKDIR;
@@ -61,11 +61,11 @@ async function main() {
     console.log('Start with', { dryrun });
 
     const pinata = await initPinata();
-    const drop = await MerkleAirdrop.deployed();
-    const pha = await PHAToken.deployed();
+    const airdrop = await MerkleAirdrop.deployed();
+    //const pha = await PHAToken.deployed();
     const [account] = await web3.eth.getAccounts();
 
-    const curDrops = await drop.airdropsCount();
+    const curDrops = await airdrop.airdropsCount();
     console.log('Current airdrops:', curDrops.toNumber());
 
     console.log('csvFile:' + csvFile.toString());
@@ -94,7 +94,7 @@ async function main() {
 
     // publish the plan to IPFS
     console.log('Publishing to IPFS...');
-    const contractAddrPrefix = drop.address.substring(2, 8);
+    const contractAddrPrefix = airdrop.address.substring(2, 8);
     const hash = await publishPlanToIpfs(pinata, outJson, `merkle-airdrop-${contractAddrPrefix}-${plan.id}`);
 
     // save manifest
@@ -115,17 +115,17 @@ async function main() {
         manifest
     });
 
-    const remainingAllowance = await pha.allowance(account, drop.address);
-    const remaining = parseFloat(web3.utils.fromWei(remainingAllowance));
-    if (remaining <= total) {
-        console.error(`Insufficient allowance (${remaining} <= ${total}). Exiting...`);
-        return;
-    }
-    if (remaining * 0.8 <= total) {
-        console.warn('Require > 80% of the allowance', { remaining, required: total });
-    } else {
-        console.info('Sufficient allowance', { remaining, required: total });
-    }
+    // const remainingAllowance = await pha.allowance(account, airdrop.address);
+    // const remaining = parseFloat(web3.utils.fromWei(remainingAllowance));
+    // if (remaining <= total) {
+    //     console.error(`Insufficient allowance (${remaining} <= ${total}). Exiting...`);
+    //     return;
+    // }
+    // if (remaining * 0.8 <= total) {
+    //     console.warn('Require > 80% of the allowance', { remaining, required: total });
+    // } else {
+    //     console.info('Sufficient allowance', { remaining, required: total });
+    // }
 
     if (dryrun) {
         console.log('Dryrun enabled. Exiting...');
@@ -134,7 +134,7 @@ async function main() {
 
     const uri = '/ipfs/' + hash;
     console.log('Adding airdrop', { root: merklized.root, uri });
-    const r = await drop.start(merklized.root, uri, { gas: 150000, gasPrice: 125 * 1e9, nonce: undefined });
+    const r = await airdrop.start(merklized.root, uri, { gas: 150000, gasPrice: 125 * 1e9, nonce: undefined });
     console.log('Done', r);
 }
 
