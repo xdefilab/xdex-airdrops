@@ -3,9 +3,8 @@
 pragma solidity 0.5.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
 
-contract MerkleAirdrop is Ownable {
+contract MerkleAirdrop {
     struct Airdrop {
         bytes32 root;
         string dataURI;
@@ -17,21 +16,32 @@ contract MerkleAirdrop is Ownable {
     event Start(uint256 id);
     event PauseChange(uint256 id, bool paused);
     event Award(uint256 id, address recipient, uint256 amount);
+    event BalAmount(uint256 bal, uint256 amount);
 
-    // State
+    // States
     mapping(uint256 => Airdrop) public airdrops;
     IERC20 public token;
-    address public approver;
     uint256 public airdropsCount;
+
+    address public core;
 
     // Errors
     string private constant ERROR_AWARDED = "AWARDED";
     string private constant ERROR_INVALID = "INVALID";
     string private constant ERROR_PAUSED = "PAUSED";
+    string private constant ERROR_INVALID_BAL = "INVALID_BAL";
 
-    function setToken(address _token, address _approver) public onlyOwner {
+    modifier onlyCore() {
+        require(msg.sender == core, "Not Authorized");
+        _;
+    }
+
+    constructor() public {
+        core = msg.sender;
+    }
+
+    function setToken(address _token) public onlyCore {
         token = IERC20(_token);
-        approver = _approver;
     }
 
     /**
@@ -39,7 +49,9 @@ contract MerkleAirdrop is Ownable {
      * @param _root New airdrop merkle root
      * @param _dataURI Data URI for airdrop data
      */
-    function start(bytes32 _root, string memory _dataURI) public onlyOwner {
+    function start(bytes32 _root, string memory _dataURI) public onlyCore {
+        require(token.balanceOf(address(this)) > 0, ERROR_INVALID_BAL);
+
         uint256 id = ++airdropsCount; // start at 1
         airdrops[id] = Airdrop(_root, _dataURI, false);
         emit Start(id);
@@ -50,10 +62,20 @@ contract MerkleAirdrop is Ownable {
      * @param _id The airdrop to change status
      * @param _paused Pause to resume
      */
-    function setPause(uint256 _id, bool _paused) public onlyOwner {
+    function setPause(uint256 _id, bool _paused) public onlyCore {
         require(_id <= airdropsCount, ERROR_INVALID);
         airdrops[_id].paused = _paused;
         emit PauseChange(_id, _paused);
+    }
+
+    /**
+     * @notice Remove tokens after airdrop has finished.
+     */
+    function removeToken() public onlyCore {
+        uint256 balance = token.balanceOf(address(this));
+        if (balance > 0) {
+            token.transfer(core, balance);
+        }
     }
 
     /**
@@ -81,7 +103,12 @@ contract MerkleAirdrop is Ownable {
 
         airdrops[_id].awarded[_recipient] = true;
 
-        token.transferFrom(approver, _recipient, _amount);
+        uint256 bal = token.balanceOf(address(this));
+        if (bal >= _amount) {
+            token.transfer(_recipient, _amount);
+        } else {
+            emit BalAmount(bal, _amount);
+        }
 
         emit Award(_id, _recipient, _amount);
     }
@@ -126,7 +153,12 @@ contract MerkleAirdrop is Ownable {
             emit Award(id, _recipient, _amounts[i]);
         }
 
-        token.transferFrom(approver, _recipient, totalAmount);
+        uint256 bal = token.balanceOf(address(this));
+        if (bal >= totalAmount) {
+            token.transfer(_recipient, totalAmount);
+        } else {
+            emit BalAmount(bal, totalAmount);
+        }
     }
 
     function extractProof(
