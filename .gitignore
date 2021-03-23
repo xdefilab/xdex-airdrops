@@ -1,0 +1,10 @@
+contracts/.placeholder
+test/.placeholder
+build
+node_modules
+yarn-error.log
+keys.js
+.DS_Store
+packages/bulksend/data
+tmp/
+.env

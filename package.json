@@ -1,0 +1,24 @@
+{
+    "private": true,
+    "scripts": {
+        "build": "lerna run build"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts": "^2.5.1",
+        "@phala/merkledrop-lib": "^1.0.0",
+        "@pinata/sdk": "^1.1.13",
+        "@truffle/hdwallet-provider": "^1.0.41",
+        "csv-parse": "^4.12.0",
+        "dotenv": "^8.2.0",
+        "truffle": "^5.0.41",
+        "truffle-assertions": "^0.9.1",
+        "truffle-plugin-verify": "^0.3.10"
+    },
+    "workspaces": [
+        "packages/*"
+    ],
+    "devDependencies": {
+        "lerna": "^3.22.1"
+    },
+    "name": "xdex-airdrops"
+}
