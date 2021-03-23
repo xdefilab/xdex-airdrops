@@ -1,4 +1,5 @@
 // Modified from https://github.com/Phala-Network/prelaunch-token/blob/master/contracts/MerkleAirdrop.sol
+
 pragma solidity 0.5.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -12,47 +13,25 @@ contract MerkleAirdrop is Ownable {
         mapping(address => bool) awarded;
     }
 
-    /// Events
+    // Events
     event Start(uint256 id);
     event PauseChange(uint256 id, bool paused);
     event Award(uint256 id, address recipient, uint256 amount);
-    event UpdateStartStop(uint256 start, uint256 stop);
 
-    /// State
+    // State
     mapping(uint256 => Airdrop) public airdrops;
     IERC20 public token;
     address public approver;
     uint256 public airdropsCount;
-
-    // Start and Stop blocknum
-    uint256 public startBlock;
-    uint256 public stopBlock;
 
     // Errors
     string private constant ERROR_AWARDED = "AWARDED";
     string private constant ERROR_INVALID = "INVALID";
     string private constant ERROR_PAUSED = "PAUSED";
 
-    /**
-     * Throws if current block.number does not between the startBlock and stopBlock.
-     */
-    modifier validBlocknum() {
-        require(
-            block.number >= startBlock && block.number <= stopBlock,
-            "current blocknum does not valid"
-        );
-        _;
-    }
-
     function setToken(address _token, address _approver) public onlyOwner {
         token = IERC20(_token);
         approver = _approver;
-    }
-
-    function setStartStop(uint256 _start, uint256 _stop) public onlyOwner {
-        startBlock = _start;
-        stopBlock = _stop;
-        emit UpdateStartStop(_start, _stop);
     }
 
     /**
@@ -78,7 +57,7 @@ contract MerkleAirdrop is Ownable {
     }
 
     /**
-     * @notice Award from airdrop
+     * @notice Fetch Award from airdrop
      * @param _id Airdrop id
      * @param _recipient Airdrop recipient
      * @param _amount The token amount
@@ -108,7 +87,7 @@ contract MerkleAirdrop is Ownable {
     }
 
     /**
-     * @notice Award from airdrop
+     * @notice Fetch Award from many airdrops
      * @param _ids Airdrop ids
      * @param _recipient Recepient of award
      * @param _amounts The amounts
