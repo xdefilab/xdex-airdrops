@@ -1,14 +1,13 @@
 import React, { useEffect, Suspense, useState, useMemo } from 'react';
-import { GeistProvider, CssBaseline, Button, Card, Description, Link, Page, Radio, Row, Text, useMediaQuery } from '@geist-ui/react'
+import { GeistProvider, CssBaseline, Button, Card, Description, Link, Page, Row, Text, useMediaQuery, Themes } from '@geist-ui/react'
 import * as Icon from '@geist-ui/react-icons'
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import pAny from 'p-any';
-// import '@zeit-ui/themes/index.css'
 import { combineProofs } from '@phala/merkledrop-lib';
-
 import Web3 from "web3";
 import Web3Modal from "web3modal";
+import BigNumber from "bignumber.js";
 
 import './App.css';
 import { network, etherscanBase, loadMerkleAirdropContract } from './contracts';
@@ -63,15 +62,12 @@ async function getAirdropPlan(uri) {
 }
 
 async function getAirdropLists(contract) {
-  console.log('### 1');
   const numAirdrop = await contract.methods.airdropsCount().call();
   const uriPromises = []
-  console.log('### 2');
   for (let i = 1; i <= numAirdrop; i++) {
     uriPromises.push(contract.methods.airdrops(i).call());
   }
   const airdrops = await Promise.all(uriPromises);
-  console.log('airdrops', airdrops);
   const plans = await Promise.all(
     airdrops.map(a => getAirdropPlan(a.dataURI))
   );
@@ -79,7 +75,6 @@ async function getAirdropLists(contract) {
     return {...a, paused: airdrops[idx].paused};
   });
 
-  console.log('plans', plansWithStatus);
   return plansWithStatus;
 }
 
@@ -107,7 +102,7 @@ function App() {
       if (provider.on) {
         provider.on("accountsChanged", (acc) => {
           console.log(acc);
-          // setAccounts(acc);
+          setAccounts(acc);
         });
         provider.on("chainChanged", (chainId) => {
           console.log(chainId);
@@ -158,7 +153,6 @@ function App() {
     }
     const address = accounts[0];
     if (plans.length === 0) {
-      console.log('No plan', plans);
       return;
     }
 
@@ -181,7 +175,6 @@ function App() {
     });
 
     setMyAwards(_myAwards);
-    console.log({myAwards});
   }
   useEffect(() => {
     filterMyAwards();
@@ -257,33 +250,33 @@ function App() {
     if (selectedAirdrop === 0) {
       await claimAll();
     } else {
-      await claimSingle(selectedAirdrop);
+      await claimSingle(myAwards[0].id);
     }
   }
 
   return (
     <div className="App">
-      {NETWORK !== 'mainnet' && <Card type='warning'><h4>Now on {NETWORK}, not mainnet</h4></Card>}
-      <Page>
-        <Page.Header>
-          <Text h3 style={{marginTop: '15px'}}>PHA {t('Award Claim')}</Text>
+      <Page style={{paddingTop: 30, height: '100vh',minHeight: 'auto'}}>
+        {NETWORK !== 'mainnet' && <Card type='warning'><h4>Now on {NETWORK}, not mainnet</h4></Card>}
+        <Page.Header style={{marginTop: 30}}>
+          <Text h3>XDEX {t('Award Claim')}</Text>
           <Text small className='links'>
-            <Link href='https://phala.network/' color>Home</Link>
-            <Link href='https://t.me/phalanetwork' color>Telegram</Link>
+            <Link href='https://xdefi.com/' color>Home</Link>
+            <Link href='https://t.me/xdeficn ' color>Telegram</Link>
           </Text>
         </Page.Header>
         
         <Page.Content>
 
           <Row style={{marginBottom: '25px'}}>
-            {!provider && <Button icon={<Icon.LogIn />} size='medium' onClick={connectWeb3} style={width100}>{t('Connect Wallet')}</Button>}
-            {provider && <Button icon={<Icon.LogOut />} size='medium' onClick={disconnectWeb3} style={width100}>{t('Disconnect Wallet')}</Button>}
+            {!provider && <Button icon={<Icon.LogIn color='inherit'/>} size='medium' onClick={connectWeb3} style={width100} className="claimButton">{t('Connect Wallet')}</Button>}
+            {provider && <Button icon={<Icon.LogOut color='inherit'/>} size='medium' onClick={disconnectWeb3} style={width100} className="claimButton">{t('Disconnect Wallet')}</Button>}
           </Row>
 
           {accounts.length >= 1 && (
             <>
               <Row style={{marginBottom: '20px'}}>
-                <Description title={t('ETH Account')} content={accounts[0]} className='text-wrap-all' />
+                <Description title={t('ETH Account')} content={accounts[0]} className='text-wrap-all' style={{color: 'white'}}/>
               </Row>
 
               {myAwards.length > 0
@@ -293,19 +286,12 @@ function App() {
                     <Text span size="0.75rem" style={{fontWeight: 500}} type="secondary">{t('YOUR AWARDS')}</Text>
                   </Row>
                   <Row style={{marginBottom: '20px'}}>
-                    <Radio.Group value={selectedAirdrop} onChange={setSelectedAirdrop}>
                       {myAwards.map(award =>
-                        <Radio value={award.id} key={award.id} disabled={award.awarded || award.paused}>
-                          <span className='text-wrap-all'>
-                            #{award.id} - {award.amount} PHA {
-                              award.awarded ? `(${t('claimed')})` : award.paused ? `(${t('unavailable')})` : ''}
-                          </span>
-                        </Radio>
+                        <span className='text-wrap-all' key={award.id}>
+                          #{award.id} - {new BigNumber(award.amountWei).div('1e18').toNumber()} XDEX {
+                            award.awarded ? `(${t('claimed')})` : award.paused ? `(${t('unavailable')})` : ''}
+                        </span>
                       )}
-                      <Radio value={0} disabled={!canClaimAll}>
-                        <span className='text-wrap-all'>{t('Claim all')}</span>
-                      </Radio>
-                    </Radio.Group>
                   </Row>
                 </>
               )
@@ -324,18 +310,18 @@ function App() {
                 </Row>
               )}
 
-              <section style={{marginTop: '20px', marginBottom: '15px'}}>
+              {Boolean(myAwards.length && !myAwards[0].awarded) && (<section style={{marginTop: '20px', marginBottom: '15px'}}>
                 <Row>
                   <Button
-                    onClick={claim} size='medium' style={width100}
-                    loading={showSending} disabled={selectedAirdrop < 0}>
+                    onClick={claim} size='medium' style={width100} className='claimButton'
+                    loading={showSending} disabled={Boolean(myAwards.length)}>
                       {t('Claim')}
                   </Button>
                 </Row>
-              </section>
-
+              </section>)
+                }
               {showSentTips && (
-                <Card>
+                <Card type='secondary' shadow>
                   <Description title={t('Transaction ID')} content={sentTx
                       ? (<Link href={etherscanTxLink(sentTx)} target='_blank' icon>{sentTx}</Link>)
                       : '(unknown)'
@@ -370,7 +356,7 @@ function App() {
 }
 
 const myTheme = {
-  // "type": "dark",
+  "type": 'coolTheme',
   "palette": {
     "accents_1": "#111",
     "accents_2": "#333",
@@ -384,12 +370,15 @@ const myTheme = {
     "foreground": "#fff",
     "selection": "#D1FF52",
     "secondary": "#888",
-    "success": "#D1FF52",
+    "icon":"#fff",
+    "error":'#fa695a',
+    "errorLight":'#fa695a',
+    "errorDark":'#fa695a',
+    "success": "#51d054",
     "successLight": "#D1FF52",
     "successDark": "#D1FF52",
-    "code": "#79ffe1",
+    "code": "#fff",
     "border": "#333",
-    "link": "#D1FF52"
   },
   "expressiveness": {
     "dropdownBoxShadow": "0 0 0 1px #333",
@@ -400,9 +389,12 @@ const myTheme = {
   }
 };
 
+
+
 function DecorateApp () {
+  const theme = Themes.createFromDark(myTheme)
   return (
-    <GeistProvider theme={myTheme}>
+    <GeistProvider themes={[theme]} themeType='coolTheme'>
       <CssBaseline />
       <Suspense fallback={<Loading />}>
         <App />
