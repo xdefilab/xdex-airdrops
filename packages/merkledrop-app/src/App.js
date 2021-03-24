@@ -269,10 +269,13 @@ function App() {
           <Text h3>XDEX {t('Award Claim')}</Text>
           <Text small className='links'>
             <Link href='https://xdefi.com/' color>Home</Link>
-            <Link href='https://t.me/xdeficn ' color>Telegram</Link>
+            <Link href='https://t.me/xdeficn' color>Telegram CN</Link>
+            <Link href='https://t.me/xdefilab' color>Telegram EN</Link>
+            <Link href='https://discord.com/invite/SuXhDHbAN3' color>Discord</Link>
+            <Link href='https://twitter.com/xdefilab' color>Twitter</Link>
+            <Link href='https://xdefilab.medium.com/' color>Medium</Link>
           </Text>
         </Page.Header>
-        
         <Page.Content>
 
           <Row style={{marginBottom: '25px'}}>
@@ -282,15 +285,20 @@ function App() {
 
           {accounts.length >= 1 && (
             <>
-              <Row style={{marginBottom: '20px'}}>
-                <Description title={t('ETH Account')} content={accounts[0]} className='text-wrap-all' style={{color: 'white'}}/>
-              </Row>
+              <div style={{marginBottom: '20px'}}>
+                <Text h3 className='text-wrap-all' style={{color: 'white'}}>
+                  {t('ETH Account')}
+                </Text>
+                <Text h6 className='text-wrap-all'>
+                  {accounts[0]}
+                </Text>
+              </div>
 
               {myAwards.length > 0
               ? (
                 <>
                   <Row style={{marginBottom: '5px'}}>
-                    <Text span size="0.75rem" style={{fontWeight: 500}} type="secondary">{t('YOUR AWARDS')}</Text>
+                    <Text h3 span style={{color: 'white'}}>{t('YOUR AWARDS')}</Text>
                   </Row>
                   <Row style={{marginBottom: '20px'}}>
                       {myAwards.map(award =>
