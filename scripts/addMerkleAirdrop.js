@@ -25,12 +25,12 @@ const outManifest = `${workdir}/manifest.json`;
 
 // const constants = {
 //     mainnet: {
-//         root: '0xb7687A5a3E7b49522705833Bf7D5bAf18AaBDD2d',
-//         phaTokenAddress: '0x6c5ba91642f10282b576d91922ae6448c9d52f4e',
+//         root: '0x25fb9a4a430120e945c48f4a0dc7ce9b41ffde4f',
+//         xdexTokenAddress: '0x000000000000d0151e748d25b766e77efe2a6c83',
 //     },
 //     kovan: {
-//         root: '0xb7687A5a3E7b49522705833Bf7D5bAf18AaBDD2d',
-//         phaTokenAddress: '0x6c5ba91642f10282b576d91922ae6448c9d52f4e',
+//         root: '0x93628AbB3CdeE99a6aE083813778303617F578E8',
+//         xdexTokenAddress: '0xD88b39C71b183AC37362d5A8E620b676502F8F91',
 //     }
 // };
 // const netConsts = constants[network];
@@ -95,8 +95,9 @@ async function main() {
     console.log('Publishing to IPFS...');
     const contractAddrPrefix = airdrop.address.substring(2, 8);
 
-    const pinata = await initPinata();
-    const hash = await publishPlanToIpfs(pinata, outJson, `merkle-airdrop-${contractAddrPrefix}-${plan.id}`);
+    //const pinata = await initPinata();
+    //const hash = await publishPlanToIpfs(pinata, outJson, `merkle-airdrop-${contractAddrPrefix}-${plan.id}`);
+    const hash = 'https://static.xdefi.com/airdrop/plan.json';
 
     // save manifest
     const manifest = {
@@ -115,18 +116,6 @@ async function main() {
         total,
         manifest
     });
-
-    // const remainingAllowance = await pha.allowance(account, airdrop.address);
-    // const remaining = parseFloat(web3.utils.fromWei(remainingAllowance));
-    // if (remaining <= total) {
-    //     console.error(`Insufficient allowance (${remaining} <= ${total}). Exiting...`);
-    //     return;
-    // }
-    // if (remaining * 0.8 <= total) {
-    //     console.warn('Require > 80% of the allowance', { remaining, required: total });
-    // } else {
-    //     console.info('Sufficient allowance', { remaining, required: total });
-    // }
 
     if (dryrun) {
         console.log('Dryrun enabled. Exiting...');
