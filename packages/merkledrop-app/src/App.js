@@ -14,10 +14,10 @@ import { network, etherscanBase, loadMerkleAirdropContract } from './contracts';
 
 const NETWORK = network;
 const IPFS_BASES = [
-  'https://10.via0.com/ipfs',
-  'https://ipfs.io/ipfs',
+  "https://static.xdefi.com/airdrop/plan.json",
+  /* 'https://ipfs.io/ipfs',
   'https://ipfs.leiyun.org/ipfs',
-  'https://cloudflare-ipfs.com/ipfs',
+  'https://cloudflare-ipfs.com/ipfs', */
 ];
 
 const providerOptions = {};
@@ -46,7 +46,7 @@ function etherscanTxLink (tx) {
 }
 
 async function agumentedIpfsGet(hash) {
-  const promises = IPFS_BASES.map(ipfsBase => axios.get(`${ipfsBase}/${hash}`));
+  const promises = [ axios.get(`${IPFS_BASES[0]}`)];
   if (Promise.any) {
     return await Promise.any(promises);
   } else {
@@ -62,17 +62,24 @@ async function getAirdropPlan(uri) {
 }
 
 async function getAirdropLists(contract) {
-  const numAirdrop = await contract.methods.airdropsCount().call();
+  let numAirdrop = 1;
+  try{
+    numAirdrop = await contract.methods.airdropsCount().call();
+  }catch (e){
+    console.error(e);
+  }
   const uriPromises = []
   for (let i = 1; i <= numAirdrop; i++) {
     uriPromises.push(contract.methods.airdrops(i).call());
   }
+
   const airdrops = await Promise.all(uriPromises);
   const plans = await Promise.all(
     airdrops.map(a => getAirdropPlan(a.dataURI))
   );
+
   const plansWithStatus = plans.map((a, idx) => {
-    return {...a, paused: airdrops[idx].paused};
+    return {...a, paused:false};
   });
 
   return plansWithStatus;
