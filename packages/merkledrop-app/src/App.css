@@ -1,4 +1,6 @@
 .App {
+  background-color: #161638;
+  color: #fff;
 }
 
 .App-logo {
@@ -33,6 +35,13 @@
 .text-wrap-all {
   word-break: break-all;
   overflow-wrap: anywhere;
+  
+}
+.claimButton{
+  background: linear-gradient(137deg, rgb(43, 247, 221) 0%, rgb(58, 143, 247) 51%, rgb(218, 55, 250) 100%);
+  border-radius:25px !important;
+  border: transparent !important;
+  color: #fff !important;
 }
 
 @keyframes App-logo-spin {
