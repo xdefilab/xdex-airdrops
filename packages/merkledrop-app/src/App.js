@@ -321,7 +321,7 @@ function App() {
                 <Row>
                   <Button
                     onClick={claim} size='medium' style={width100} className='claimButton'
-                    loading={showSending} disabled={Boolean(myAwards.length)}>
+                    loading={showSending} disabled={!Boolean(myAwards.length)}>
                       {t('Claim')}
                   </Button>
                 </Row>
